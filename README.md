@@ -23,7 +23,7 @@ A simple, cross-platform desktop authenticator for Steam accounts, built with Ta
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/steam-desktop-guard.git
+   git clone https://github.com/taurusxin/steam-desktop-guard.git
    cd steam-desktop-guard
    ```
 
@@ -56,6 +56,7 @@ Or on Windows, you can use the PowerShell script:
 ### Invalid Base64 Error
 
 If you encounter an error related to invalid Base64 when adding a secret, make sure:
+
 1. The shared secret is copied correctly without extra spaces
 2. The shared secret is in the correct format (Base64)
 3. Try removing any wrapping quotes if present
@@ -63,12 +64,14 @@ If you encounter an error related to invalid Base64 when adding a secret, make s
 ### Application Freezes
 
 If the application freezes during startup:
+
 1. Delete the configuration directory at `%APPDATA%\steam-desktop-guard` (Windows) or `~/.config/steam-desktop-guard` (Linux/Mac)
 2. Restart the application
 
 ### General Issues
 
 For general issues:
+
 1. Check the console for error messages
 2. Ensure you're using the latest version of the application
 3. Try rebuilding the application from source
