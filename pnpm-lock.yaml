@@ -14,9 +14,6 @@ importers:
       '@tauri-apps/api':
         specifier: ^2
         version: 2.4.0
-      '@tauri-apps/plugin-opener':
-        specifier: ^2
-        version: 2.2.6
       '@types/crypto-js':
         specifier: ^4.2.2
         version: 4.2.2
@@ -590,9 +587,6 @@ packages:
     resolution: {integrity: sha512-Esg7s20tuSULd2YF3lmtMa1vF7yr5eh/TlBHXjEyrC+XSD9aBxHVoXb6oz7oKybDY9Jf9OiBa0bf2PbybcmOLA==}
     engines: {node: '>= 10'}
     hasBin: true
-
-  '@tauri-apps/plugin-opener@2.2.6':
-    resolution: {integrity: sha512-bSdkuP71ZQRepPOn8BOEdBKYJQvl6+jb160QtJX/i2H9BF6ZySY/kYljh76N2Ne5fJMQRge7rlKoStYQY5Jq1w==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1323,10 +1317,6 @@ snapshots:
       '@tauri-apps/cli-win32-arm64-msvc': 2.4.0
       '@tauri-apps/cli-win32-ia32-msvc': 2.4.0
       '@tauri-apps/cli-win32-x64-msvc': 2.4.0
-
-  '@tauri-apps/plugin-opener@2.2.6':
-    dependencies:
-      '@tauri-apps/api': 2.4.0
 
   '@types/babel__core@7.20.5':
     dependencies:
