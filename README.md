@@ -2,6 +2,8 @@
 
 A simple, cross-platform desktop authenticator for Steam accounts, built with Tauri 2.0 and React.
 
+![Steam Desktop Guard](images/demo.png)
+
 ## Features
 
 - Generate time-based Steam Guard authentication codes
