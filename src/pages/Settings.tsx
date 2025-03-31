@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getSecrets, deleteSecret, addSecret, Secret } from '../utils/steam'
 import AddSecretModal from '../components/AddSecretModal'
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal'
 
 export default function Settings() {
   const [secrets, setSecrets] = useState<Secret[]>([])
@@ -8,6 +9,16 @@ export default function Settings() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null)
+  const [secretVisibility, setSecretVisibility] = useState<Record<number, boolean>>({})
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean
+    index: number
+    name: string
+  }>({
+    isOpen: false,
+    index: -1,
+    name: '',
+  })
 
   useEffect(() => {
     loadSecrets()
@@ -18,6 +29,12 @@ export default function Settings() {
       setLoading(true)
       const loadedSecrets = await getSecrets()
       setSecrets(loadedSecrets)
+      // Initialize all secrets as hidden
+      const initialVisibility: Record<number, boolean> = {}
+      loadedSecrets.forEach((_, index) => {
+        initialVisibility[index] = false
+      })
+      setSecretVisibility(initialVisibility)
     } catch (error) {
       console.error('Failed to load secrets:', error)
     } finally {
@@ -29,7 +46,20 @@ export default function Settings() {
     // This will throw if there's an error, which will be caught in AddSecretModal
     const updatedSecrets = await addSecret(name, sharedSecret)
     setSecrets(updatedSecrets)
+    // Set new secret as hidden
+    setSecretVisibility(prev => ({
+      ...prev,
+      [updatedSecrets.length - 1]: false,
+    }))
     return updatedSecrets
+  }
+
+  const confirmDeleteSecret = (index: number) => {
+    setDeleteConfirmation({
+      isOpen: true,
+      index,
+      name: secrets[index].name,
+    })
   }
 
   const handleDeleteSecret = async (index: number) => {
@@ -38,12 +68,27 @@ export default function Settings() {
       setDeleteIndex(index)
       const updatedSecrets = await deleteSecret(index)
       setSecrets(updatedSecrets)
+
+      // Update visibility state after deletion
+      const newVisibility: Record<number, boolean> = {}
+      updatedSecrets.forEach((_, idx) => {
+        const oldIdx = idx >= index ? idx + 1 : idx
+        newVisibility[idx] = secretVisibility[oldIdx] || false
+      })
+      setSecretVisibility(newVisibility)
     } catch (error) {
       console.error('Failed to delete secret:', error)
     } finally {
       setIsDeleting(false)
       setDeleteIndex(null)
     }
+  }
+
+  const toggleSecretVisibility = (index: number) => {
+    setSecretVisibility(prev => ({
+      ...prev,
+      [index]: !prev[index],
+    }))
   }
 
   if (loading) {
@@ -87,15 +132,59 @@ export default function Settings() {
           <ul className="divide-y divide-slate-700">
             {secrets.map((secret, index) => (
               <li key={index} className="py-3 flex justify-between items-center">
-                <div>
+                <div className="flex-1 mr-4">
                   <h4 className="font-medium">{secret.name}</h4>
-                  <div className="text-sm text-slate-400 font-mono truncate max-w-xs">
-                    {secret.shared_secret}
+                  <div className="text-sm text-slate-400 font-mono truncate max-w-xs flex items-center">
+                    {secretVisibility[index]
+                      ? secret.shared_secret
+                      : '•'.repeat(Math.min(secret.shared_secret.length, 24))}
+                    <button
+                      className="ml-2 text-slate-500 hover:text-slate-300 focus:outline-none"
+                      onClick={() => toggleSecretVisibility(index)}
+                    >
+                      {secretVisibility[index] ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      )}
+                    </button>
                   </div>
                 </div>
                 <button
                   className="text-red-400 hover:text-red-300 p-2 rounded-full"
-                  onClick={() => handleDeleteSecret(index)}
+                  onClick={() => confirmDeleteSecret(index)}
                   disabled={isDeleting}
                 >
                   {isDeleting && deleteIndex === index ? (
@@ -135,6 +224,13 @@ export default function Settings() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddSecret}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={deleteConfirmation.isOpen}
+        onClose={() => setDeleteConfirmation({ ...deleteConfirmation, isOpen: false })}
+        onConfirm={() => handleDeleteSecret(deleteConfirmation.index)}
+        name={deleteConfirmation.name}
       />
     </div>
   )

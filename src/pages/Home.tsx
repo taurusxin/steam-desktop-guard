@@ -44,7 +44,7 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className="h-full flex flex-col">
       {secrets.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
           <div className="text-center max-w-md mx-auto">
@@ -61,7 +61,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div>
+        <div className="flex flex-col h-full">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Your Steam Accounts</h2>
             <button
@@ -82,10 +82,12 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {secrets.map((secret, index) => (
-              <AuthCode key={index} name={secret.name} sharedSecret={secret.shared_secret} />
-            ))}
+          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+            <div className="grid grid-cols-1 gap-4 pb-4">
+              {secrets.map((secret, index) => (
+                <AuthCode key={index} name={secret.name} sharedSecret={secret.shared_secret} />
+              ))}
+            </div>
           </div>
         </div>
       )}
