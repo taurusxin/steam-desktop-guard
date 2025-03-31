@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface AddSecretModalProps {
   isOpen: boolean
@@ -11,6 +11,23 @@ export default function AddSecretModal({ isOpen, onClose, onAdd }: AddSecretModa
   const [secret, setSecret] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Reset form fields when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setName('')
+      setSecret('')
+      setError('')
+    }
+  }, [isOpen])
+
+  // Custom close handler to ensure fields are cleared
+  const handleClose = () => {
+    onClose()
+    setName('')
+    setSecret('')
+    setError('')
+  }
 
   if (!isOpen) return null
 
@@ -49,7 +66,7 @@ export default function AddSecretModal({ isOpen, onClose, onAdd }: AddSecretModa
       <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-semibold text-white mb-4">Add New Steam Account</h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           {error && (
             <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded text-red-200 text-sm">
               {error}
@@ -63,11 +80,13 @@ export default function AddSecretModal({ isOpen, onClose, onAdd }: AddSecretModa
             <input
               type="text"
               id="name"
+              name="name"
               className="w-full p-2 bg-slate-900 border border-slate-700 rounded text-white"
               placeholder="e.g. Main Account"
               value={name}
               onChange={e => setName(e.target.value)}
               disabled={isSubmitting}
+              autoComplete="off"
             />
           </div>
 
@@ -78,11 +97,14 @@ export default function AddSecretModal({ isOpen, onClose, onAdd }: AddSecretModa
             <input
               type="text"
               id="secret"
+              name="secret"
               className="w-full p-2 bg-slate-900 border border-slate-700 rounded text-white font-mono"
               placeholder="Enter your shared secret"
               value={secret}
               onChange={e => setSecret(e.target.value)}
               disabled={isSubmitting}
+              autoComplete="off"
+              spellCheck="false"
             />
             <p className="mt-1 text-xs text-slate-400">
               This is the base64-encoded shared secret from your Steam account.
@@ -93,7 +115,7 @@ export default function AddSecretModal({ isOpen, onClose, onAdd }: AddSecretModa
             <button
               type="button"
               className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting}
             >
               Cancel
